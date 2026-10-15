@@ -1,0 +1,35 @@
+$kind: http-request
+url: "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}_m\
+  issing&page=1&page_size=2"
+method: GET
+queryParams:
+  - key: firstname
+    value: QueryLearner
+    disabled: false
+    description: ""
+  - key: lastname
+    value: "{{query_lastname}}_missing"
+    disabled: false
+    description: ""
+  - key: page
+    value: "1"
+    disabled: false
+    description: ""
+  - key: page_size
+    value: "2"
+    disabled: false
+    description: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("无匹配时返回空分页结果", function () {
+          pm.response.to.have.status(200);
+          pm.expect(pm.response.json()).to.deep.eql({
+              total: 0,
+              page: 1,
+              page_size: 2,
+              bookings: []
+          });
+      });
+    language: text/javascript
+order: 16000

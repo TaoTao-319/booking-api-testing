@@ -1,0 +1,49 @@
+{
+  "started_at": "2026-10-15T15:39:38+08:00",
+  "finished_at": "2026-10-15T15:39:47+08:00",
+  "status": "passed",
+  "workspace": "F:\\projects\\booking-api-testing",
+  "entry_command": ".\\.venv\\Scripts\\python.exe scripts/run_tests.py",
+  "pytest_command": [
+    "F:\\projects\\booking-api-testing\\.venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "tests",
+    "-v",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "--tb=short",
+    "--junitxml=F:\\projects\\booking-api-testing\\reports\\2026-10-15\\153938-821408\\pytest-results.xml"
+  ],
+  "pytest_exit_code": 0,
+  "service_url": "http://127.0.0.1:59246",
+  "test_results": {
+    "tests": 43,
+    "passed": 43,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cleanup_checks": {
+    "existing_bookings_unchanged": true,
+    "no_test_bookings_remaining": true,
+    "no_test_tokens_remaining": true,
+    "template_unchanged": true,
+    "service_thread_stopped": true,
+    "normal_service_port_released": true
+  },
+  "seeded_booking_count": 3,
+  "remaining_booking_count": 3,
+  "remaining_token_count": 0,
+  "template_sha256_before": "3ef1e88c506d8d13b7023465a256993b5834d676753187c9b0e0aa8eeecc74d1",
+  "template_sha256_after": "3ef1e88c506d8d13b7023465a256993b5834d676753187c9b0e0aa8eeecc74d1",
+  "environment": {
+    "python": "3.14.4",
+    "python_executable": "F:\\projects\\booking-api-testing\\.venv\\Scripts\\python.exe",
+    "pytest": "9.1.1",
+    "requests": "2.34.2"
+  },
+  "execution_error": null
+}

@@ -1,0 +1,13 @@
+{
+  "project": "booking-api-testing",
+  "files": 168,
+  "checks": [
+    "syntax",
+    "code comments removed",
+    "document links",
+    "YAML parsed",
+    "archive integrity"
+  ],
+  "validated_on": "2026-10-15",
+  "runtime_result": "see docs/verification.json"
+}

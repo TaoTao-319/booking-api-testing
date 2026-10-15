@@ -1,0 +1,58 @@
+{
+  "mode": "normal",
+  "iterations": 2,
+  "exit_code": 0,
+  "stats": {
+    "iterations": {
+      "total": 2,
+      "pending": 0,
+      "failed": 0
+    },
+    "items": {
+      "total": 210,
+      "pending": 0,
+      "failed": 0
+    },
+    "scripts": {
+      "total": 256,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequests": {
+      "total": 210,
+      "pending": 0,
+      "failed": 0
+    },
+    "requests": {
+      "total": 210,
+      "pending": 0,
+      "failed": 0
+    },
+    "tests": {
+      "total": 210,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 278,
+      "pending": 0,
+      "failed": 0
+    },
+    "testScripts": {
+      "total": 210,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequestScripts": {
+      "total": 46,
+      "pending": 0,
+      "failed": 0
+    }
+  },
+  "failures": 0,
+  "cleanup_checks": {
+    "existing_bookings_unchanged": true,
+    "no_test_tokens_remaining": true,
+    "service_thread_stopped": true
+  }
+}

@@ -1,0 +1,46 @@
+$kind: http-request
+url: "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&c\
+  heckin=2026-11-02"
+method: GET
+queryParams:
+  - key: firstname
+    value: QueryLearner
+    disabled: false
+    description: ""
+  - key: lastname
+    value: "{{query_lastname}}"
+    disabled: false
+    description: ""
+  - key: checkin
+    value: 2026-11-02
+    disabled: false
+    description: ""
+scripts:
+  - type: afterResponse
+    code: |
+      const expectedKeys = ["query_id_200", "query_id_300"];
+
+      pm.test("筛选结果准确，没有遗漏或混入", function () {
+          pm.response.to.have.status(200);
+
+          const data = pm.response.json();
+          pm.expect(data).to.be.an("array");
+
+          const actualIds = data.map(function (item) {
+              pm.expect(item).to.have.all.keys("bookingid");
+              pm.expect(Number.isInteger(item.bookingid)).to.eql(true);
+              return item.bookingid;
+          }).sort(function (a, b) {
+              return a - b;
+          });
+
+          const expectedIds = expectedKeys.map(function (key) {
+              return Number(pm.environment.get(key));
+          }).sort(function (a, b) {
+              return a - b;
+          });
+
+          pm.expect(actualIds).to.deep.eql(expectedIds);
+      });
+    language: text/javascript
+order: 9000

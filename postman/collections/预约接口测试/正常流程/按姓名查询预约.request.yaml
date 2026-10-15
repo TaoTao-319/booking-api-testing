@@ -1,0 +1,33 @@
+$kind: http-request
+url: "{{base_url}}/booking?firstname=Alex&lastname={{booking_lastname}}"
+method: GET
+queryParams:
+  firstname: Alex
+  lastname: "{{booking_lastname}}"
+scripts:
+  - type: afterResponse
+    code: >
+      pm.test("姓名筛选结果包含当前预约", function () {
+          pm.response.to.have.status(200);
+
+          const data = pm.response.json();
+          pm.expect(data).to.be.an("array");
+
+          const ids = data.map(function (item) {
+              return item.bookingid;
+          });
+
+          pm.expect(ids).to.include(
+              Number(pm.environment.get("booking_id"))
+          );
+      });
+
+
+      pm.test("唯一姓名只匹配本次预约", function () {
+          pm.expect(pm.response.json()).to.deep.eql([{bookingid:Number(pm.environment.get("booking_id"))}]);
+      });
+    language: text/javascript
+order: 6000
+name: 按姓名查询预约
+auth:
+  type: noauth

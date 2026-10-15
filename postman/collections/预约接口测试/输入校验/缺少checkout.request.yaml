@@ -1,0 +1,37 @@
+$kind: http-request
+url: "{{base_url}}/booking"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "firstname": "Alex",
+      "lastname": "Learner",
+      "totalprice": 200,
+      "depositpaid": true,
+      "bookingdates": {
+        "checkin": "2026-11-01"
+      },
+      "additionalneeds": "Breakfast"
+    }
+scripts:
+  - type: afterResponse
+    code: >
+      pm.test("错误输入返回400", function () {
+          pm.response.to.have.status(400);
+      });
+
+
+      pm.test("返回预期错误说明", function () {
+          const data = pm.response.json();
+
+          pm.expect(data.error).to.be.a("string");
+          pm.expect(data.error).to.eql("Missing or invalid bookingdates.checkout");
+      });
+    language: text/javascript
+order: 2000
+name: 缺少checkout
+auth:
+  type: noauth

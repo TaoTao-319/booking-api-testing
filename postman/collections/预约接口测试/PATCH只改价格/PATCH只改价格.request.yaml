@@ -1,0 +1,29 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Cookie: token={{token}}
+body:
+  type: json
+  content: |-
+    {
+      "totalprice": 350
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("PATCH成功，只有价格改变", function () {
+          pm.response.to.have.status(200);
+
+          const expected = JSON.parse(
+              pm.environment.get("booking_original")
+          );
+          expected.totalprice = 350;
+
+          pm.expect(pm.response.json()).to.deep.eql(expected);
+      });
+    language: text/javascript
+order: 4000

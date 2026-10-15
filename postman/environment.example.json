@@ -1,0 +1,90 @@
+{
+  "name": "本地预约服务",
+  "_postman_variable_scope": "environment",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "username",
+      "value": "admin",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "password",
+      "value": "password123",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "booking_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "booking_lastname",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "booking_original",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "booking_updated",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "query_lastname",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "query_id_100",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "query_id_200",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "query_id_300",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "paging_seen",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "revoked_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ]
+}

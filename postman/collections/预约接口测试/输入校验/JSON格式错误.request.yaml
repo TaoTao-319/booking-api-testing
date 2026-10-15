@@ -1,0 +1,26 @@
+$kind: http-request
+url: "{{base_url}}/booking"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: '{"firstname": "Alex",}'
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("错误输入返回400", function () {
+          pm.response.to.have.status(400);
+      });
+
+      pm.test("返回预期错误说明", function () {
+          const data = pm.response.json();
+
+          pm.expect(data.error).to.be.a("string");
+          pm.expect(data.error).to.eql("Invalid JSON body");
+      });
+    language: text/javascript
+order: 5000
+name: JSON格式错误
+auth:
+  type: noauth

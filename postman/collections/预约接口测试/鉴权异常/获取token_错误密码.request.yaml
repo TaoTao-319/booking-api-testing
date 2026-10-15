@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{base_url}}/auth"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "{{username}}",
+      "password": "wrong_password"
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("错误密码被拒绝", function () {
+          pm.response.to.have.status(401);
+
+          const data = pm.response.json();
+          pm.expect(data.error).to.eql("Bad credentials");
+          pm.expect(data).to.not.have.property("token");
+      });
+    language: text/javascript
+order: 4000
+name: 获取token_错误密码
+auth:
+  type: noauth

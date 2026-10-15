@@ -1,0 +1,133 @@
+{
+  "checked_at": "2026-10-15T07:45:46.453148+00:00",
+  "pytest": {
+    "tests": 43,
+    "passed": 43,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "postman": {
+    "requests": 226,
+    "assertions": 300,
+    "failures": 0,
+    "runs": [
+      {
+        "mode": "normal",
+        "iterations": 2,
+        "exit_code": 0,
+        "stats": {
+          "iterations": {
+            "total": 2,
+            "pending": 0,
+            "failed": 0
+          },
+          "items": {
+            "total": 210,
+            "pending": 0,
+            "failed": 0
+          },
+          "scripts": {
+            "total": 256,
+            "pending": 0,
+            "failed": 0
+          },
+          "prerequests": {
+            "total": 210,
+            "pending": 0,
+            "failed": 0
+          },
+          "requests": {
+            "total": 210,
+            "pending": 0,
+            "failed": 0
+          },
+          "tests": {
+            "total": 210,
+            "pending": 0,
+            "failed": 0
+          },
+          "assertions": {
+            "total": 278,
+            "pending": 0,
+            "failed": 0
+          },
+          "testScripts": {
+            "total": 210,
+            "pending": 0,
+            "failed": 0
+          },
+          "prerequestScripts": {
+            "total": 46,
+            "pending": 0,
+            "failed": 0
+          }
+        },
+        "failures": 0,
+        "cleanup_checks": {
+          "existing_bookings_unchanged": true,
+          "no_test_tokens_remaining": true,
+          "service_thread_stopped": true
+        }
+      },
+      {
+        "mode": "expiry",
+        "iterations": 2,
+        "exit_code": 0,
+        "stats": {
+          "iterations": {
+            "total": 2,
+            "pending": 0,
+            "failed": 0
+          },
+          "items": {
+            "total": 16,
+            "pending": 0,
+            "failed": 0
+          },
+          "scripts": {
+            "total": 24,
+            "pending": 0,
+            "failed": 0
+          },
+          "prerequests": {
+            "total": 16,
+            "pending": 0,
+            "failed": 0
+          },
+          "requests": {
+            "total": 16,
+            "pending": 0,
+            "failed": 0
+          },
+          "tests": {
+            "total": 16,
+            "pending": 0,
+            "failed": 0
+          },
+          "assertions": {
+            "total": 22,
+            "pending": 0,
+            "failed": 0
+          },
+          "testScripts": {
+            "total": 16,
+            "pending": 0,
+            "failed": 0
+          },
+          "prerequestScripts": {
+            "total": 8,
+            "pending": 0,
+            "failed": 0
+          }
+        },
+        "failures": 0,
+        "cleanup_checks": {
+          "existing_bookings_unchanged": true,
+          "no_test_tokens_remaining": true,
+          "service_thread_stopped": true
+        }
+      }
+    ]
+  }
+}

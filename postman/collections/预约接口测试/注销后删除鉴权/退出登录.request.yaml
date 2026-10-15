@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/auth"
+method: DELETE
+headers:
+  Cookie: token={{token}}
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("退出登录成功", function () {
+          pm.response.to.have.status(200);
+          pm.expect(pm.response.json()).to.deep.eql({
+              message: "Logged out"
+          });
+      });
+    language: text/javascript
+  - type: beforeRequest
+    code: |
+      pm.environment.set(
+          "revoked_token",
+          pm.environment.get("token")
+      );
+    language: text/javascript
+order: 3000

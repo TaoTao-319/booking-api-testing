@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Cookie: token={{token}}
+body:
+  type: json
+  content: "{\r
+
+    \  \"unexpected_field\": \"x\"\r
+
+    }"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("未知字段PATCH被拒绝", function () {
+          pm.response.to.have.status(400);
+
+          pm.expect(pm.response.json()).to.deep.eql({
+              error: "Unknown field: unexpected_field"
+          });
+      });
+    language: text/javascript
+order: 4000

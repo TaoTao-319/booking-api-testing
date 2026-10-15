@@ -1,0 +1,18 @@
+name: 短有效期预约服务
+values:
+  - key: base_url
+    value: http://127.0.0.1:8001
+  - key: username
+    value: admin
+  - key: password
+    value: password123
+  - key: booking_id
+    value: ""
+  - key: booking_original
+    value: ""
+  - key: booking_updated
+    value: ""
+  - key: booking_lastname
+    value: ""
+  - key: token
+    value: ""

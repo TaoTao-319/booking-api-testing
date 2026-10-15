@@ -1,0 +1,32 @@
+$kind: http-request
+name: 获取鉴权token
+url: "{{base_url}}/auth"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "{{username}}",
+      "password": "{{password}}"
+    }
+scripts:
+  - type: beforeRequest
+    code: |
+      pm.environment.set("token", "");
+    language: text/javascript
+  - type: afterResponse
+    code: |
+      pm.test("鉴权成功并保存token", function () {
+          pm.response.to.have.status(200);
+
+          const data = pm.response.json();
+          pm.expect(data.token).to.be.a("string").and.not.empty;
+
+          pm.environment.set("token", data.token);
+      });
+    language: text/javascript
+order: 1000
+auth:
+  type: noauth

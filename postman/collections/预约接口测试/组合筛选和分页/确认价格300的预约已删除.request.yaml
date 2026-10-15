@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{query_id_300}}"
+method: GET
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("已删除的预约无法查询", function () {
+          pm.response.to.have.status(404);
+
+          pm.expect(pm.response.json().error)
+              .to.eql("Booking or endpoint not found");
+      });
+    language: text/javascript
+order: 25000

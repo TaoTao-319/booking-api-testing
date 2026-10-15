@@ -1,0 +1,30 @@
+$kind: http-request
+url: "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&p\
+  age=abc"
+method: GET
+queryParams:
+  - key: firstname
+    value: QueryLearner
+    disabled: false
+    description: ""
+  - key: lastname
+    value: "{{query_lastname}}"
+    disabled: false
+    description: ""
+  - key: page
+    value: abc
+    disabled: false
+    description: ""
+scripts:
+  - type: afterResponse
+    code: |
+      const expectedError = "Query parameter must be an integer: page";
+
+      pm.test("非法分页参数被准确拒绝", function () {
+          pm.response.to.have.status(400);
+          pm.expect(pm.response.json()).to.deep.eql({
+              error: expectedError
+          });
+      });
+    language: text/javascript
+order: 18000

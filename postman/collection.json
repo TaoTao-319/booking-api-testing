@@ -1,0 +1,5096 @@
+{
+  "info": {
+    "name": "本地预约接口测试",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "健康检查",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/ping",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"健康检查成功\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json()).to.deep.eql({",
+              "        status: \"ok\"",
+              "    });",
+              "});",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "正常流程",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询预约列表",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"返回预约编号数组\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    data.forEach(function (item) {",
+                  "        pm.expect(item.bookingid).to.be.a(\"number\");",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"列表包含本次创建的预约\", function () {",
+                  "    pm.expect(pm.response.json().map(item => item.bookingid)).to.include(Number(pm.environment.get(\"booking_id\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询刚创建的预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "按姓名查询预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=Alex&lastname={{booking_lastname}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"姓名筛选结果包含当前预约\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const ids = data.map(function (item) {",
+                  "        return item.bookingid;",
+                  "    });",
+                  "",
+                  "    pm.expect(ids).to.include(",
+                  "        Number(pm.environment.get(\"booking_id\"))",
+                  "    );",
+                  "});",
+                  "",
+                  "pm.test(\"唯一姓名只匹配本次预约\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql([{bookingid:Number(pm.environment.get(\"booking_id\"))}]);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "更新预约",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 300,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"更新成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.totalprice).to.eql(300);",
+                  "});",
+                  "",
+                  "pm.test(\"更新响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json()).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_updated\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询更新后的预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(300);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"再次查询确认完整更新结果\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_updated\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询已删除预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录并清理凭证\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({message: \"Logged out\"});",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "鉴权异常",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询刚创建的预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取token_错误密码",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"wrong_password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"错误密码被拒绝\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.error).to.eql(\"Bad credentials\");",
+                  "    pm.expect(data).to.not.have.property(\"token\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "更新预约_未携带token",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 300,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"无有效凭证时拒绝操作\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"A valid token cookie is required\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "无token更新后确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "更新预约_token无效",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token=invalid_token",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 300,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"无有效凭证时拒绝操作\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"A valid token cookie is required\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "无效token更新后确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约_未携带token",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"无有效凭证时拒绝删除\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.error)",
+                  "        .to.eql(\"A valid token cookie is required\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "无token删除后确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约_token无效",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token=invalid_token",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"无有效凭证时拒绝删除\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.error)",
+                  "        .to.eql(\"A valid token cookie is required\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "无效token删除后确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录并清理凭证\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({message: \"Logged out\"});",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "资源不存在",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询预约_ID不存在",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"不存在的预约查询返回404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.error).to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "更新预约_ID不存在",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 300,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"不存在的预约更新返回404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.error).to.eql(\"Booking not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约_ID不存在",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"不存在的预约删除返回404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.error).to.eql(\"Booking not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录并清理凭证\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({message: \"Logged out\"});",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "输入校验",
+      "item": [
+        {
+          "name": "缺少firstname",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lastname\": \"Learner\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"错误输入返回400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"返回预期错误说明\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.error).to.be.a(\"string\");",
+                  "    pm.expect(data.error).to.eql(\"Missing field: firstname\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "缺少checkout",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"Learner\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"错误输入返回400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"返回预期错误说明\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.error).to.be.a(\"string\");",
+                  "    pm.expect(data.error).to.eql(\"Missing or invalid bookingdates.checkout\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "totalprice类型错误",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"Learner\",\n  \"totalprice\": \"200\",\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"错误输入返回400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"返回预期错误说明\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.error).to.be.a(\"string\");",
+                  "    pm.expect(data.error).to.eql(\"Incorrect type: totalprice\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "depositpaid类型错误",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"Learner\",\n  \"totalprice\": 200,\n  \"depositpaid\": \"true\",\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"错误输入返回400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"返回预期错误说明\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.error).to.be.a(\"string\");",
+                  "    pm.expect(data.error).to.eql(\"Incorrect type: depositpaid\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "JSON格式错误",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"firstname\": \"Alex\",}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"错误输入返回400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"返回预期错误说明\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.error).to.be.a(\"string\");",
+                  "    pm.expect(data.error).to.eql(\"Invalid JSON body\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "价格为负数",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstname\": \"Alex\",\r\n  \"lastname\": \"Learner\",\r\n  \"totalprice\": -1,\r\n  \"depositpaid\": true,\r\n  \"bookingdates\": {\r\n    \"checkin\": \"2026-11-01\",\r\n    \"checkout\": \"2026-11-03\"\r\n  },\r\n  \"additionalneeds\": \"Breakfast\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"负数价格被拒绝\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: \"totalprice must be greater than or equal to 0\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "firstname全为空格",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstname\": \"   \",\r\n  \"lastname\": \"Learner\",\r\n  \"totalprice\": 200,\r\n  \"depositpaid\": true,\r\n  \"bookingdates\": {\r\n    \"checkin\": \"2026-11-01\",\r\n    \"checkout\": \"2026-11-03\"\r\n  },\r\n  \"additionalneeds\": \"Breakfast\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"全空格姓名被拒绝\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: \"Must not be blank: firstname\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "checkout日期不存在",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstname\": \"Alex\",\r\n  \"lastname\": \"Learner\",\r\n  \"totalprice\": 200,\r\n  \"depositpaid\": true,\r\n  \"bookingdates\": {\r\n    \"checkin\": \"2026-11-01\",\r\n    \"checkout\": \"2026-02-30\"\r\n  },\r\n  \"additionalneeds\": \"Breakfast\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"不存在的退房日期被拒绝\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: \"Invalid date: bookingdates.checkout (use YYYY-MM-DD)\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "组合筛选和分页",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建价格100的预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstname\": \"QueryLearner\",\r\n  \"lastname\": \"{{query_lastname}}\",\r\n  \"totalprice\": 100,\r\n  \"depositpaid\": true,\r\n  \"bookingdates\": {\r\n    \"checkin\": \"2026-11-01\",\r\n    \"checkout\": \"2026-11-03\"\r\n  },\r\n  \"additionalneeds\": \"Breakfast\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const idKey = \"query_id_100\";",
+                  "",
+                  "pm.test(\"预约创建成功并保存实际编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    const expected = JSON.parse(",
+                  "        pm.variables.replaceIn(pm.request.body.raw)",
+                  "    );",
+                  "",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "    pm.expect(data.booking).to.deep.eql(expected);",
+                  "",
+                  "    pm.environment.set(idKey, data.bookingid);",
+                  "});",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.environment.set(",
+                  "    \"query_lastname\",",
+                  "    \"Query_\" + pm.variables.replaceIn(\"{{$guid}}\")",
+                  ");",
+                  "",
+                  "",
+                  "[\"query_id_100\", \"query_id_200\", \"query_id_300\"].forEach(function (key) {",
+                  "    pm.environment.set(key, \"\");",
+                  "});",
+                  "pm.environment.set(\"paging_seen\", \"[]\");",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建价格200的预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstname\": \"QueryLearner\",\r\n  \"lastname\": \"{{query_lastname}}\",\r\n  \"totalprice\": 200,\r\n  \"depositpaid\": false,\r\n  \"bookingdates\": {\r\n    \"checkin\": \"2026-11-02\",\r\n    \"checkout\": \"2026-11-04\"\r\n  },\r\n  \"additionalneeds\": \"Breakfast\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const idKey = \"query_id_200\";",
+                  "",
+                  "pm.test(\"预约创建成功并保存实际编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    const expected = JSON.parse(",
+                  "        pm.variables.replaceIn(pm.request.body.raw)",
+                  "    );",
+                  "",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "    pm.expect(data.booking).to.deep.eql(expected);",
+                  "",
+                  "    pm.environment.set(idKey, data.bookingid);",
+                  "});",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建价格300的预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstname\": \"QueryLearner\",\r\n  \"lastname\": \"{{query_lastname}}\",\r\n  \"totalprice\": 300,\r\n  \"depositpaid\": true,\r\n  \"bookingdates\": {\r\n    \"checkin\": \"2026-11-02\",\r\n    \"checkout\": \"2026-11-05\"\r\n  },\r\n  \"additionalneeds\": \"Breakfast\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const idKey = \"query_id_300\";",
+                  "",
+                  "pm.test(\"预约创建成功并保存实际编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    const expected = JSON.parse(",
+                  "        pm.variables.replaceIn(pm.request.body.raw)",
+                  "    );",
+                  "",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "    pm.expect(data.booking).to.deep.eql(expected);",
+                  "",
+                  "    pm.environment.set(idKey, data.bookingid);",
+                  "});",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "不分页查询",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\"query_id_100\", \"query_id_200\", \"query_id_300\"];",
+                  "",
+                  "pm.test(\"筛选结果准确，没有遗漏或混入\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const actualIds = data.map(function (item) {",
+                  "        pm.expect(item).to.have.all.keys(\"bookingid\");",
+                  "        pm.expect(Number.isInteger(item.bookingid)).to.eql(true);",
+                  "        return item.bookingid;",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    const expectedIds = expectedKeys.map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    pm.expect(actualIds).to.deep.eql(expectedIds);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "姓名加已付订金",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&depositpaid=true",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\"query_id_100\", \"query_id_300\"];",
+                  "",
+                  "pm.test(\"筛选结果准确，没有遗漏或混入\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const actualIds = data.map(function (item) {",
+                  "        pm.expect(item).to.have.all.keys(\"bookingid\");",
+                  "        pm.expect(Number.isInteger(item.bookingid)).to.eql(true);",
+                  "        return item.bookingid;",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    const expectedIds = expectedKeys.map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    pm.expect(actualIds).to.deep.eql(expectedIds);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "姓名加未付订金",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&depositpaid=false",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\"query_id_200\"];",
+                  "",
+                  "pm.test(\"筛选结果准确，没有遗漏或混入\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const actualIds = data.map(function (item) {",
+                  "        pm.expect(item).to.have.all.keys(\"bookingid\");",
+                  "        pm.expect(Number.isInteger(item.bookingid)).to.eql(true);",
+                  "        return item.bookingid;",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    const expectedIds = expectedKeys.map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    pm.expect(actualIds).to.deep.eql(expectedIds);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "价格范围包含边界",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&min_price=200&max_price=300",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\"query_id_200\", \"query_id_300\"];",
+                  "",
+                  "pm.test(\"筛选结果准确，没有遗漏或混入\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const actualIds = data.map(function (item) {",
+                  "        pm.expect(item).to.have.all.keys(\"bookingid\");",
+                  "        pm.expect(Number.isInteger(item.bookingid)).to.eql(true);",
+                  "        return item.bookingid;",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    const expectedIds = expectedKeys.map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    pm.expect(actualIds).to.deep.eql(expectedIds);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "按入住日期查询",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&checkin=2026-11-02",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\"query_id_200\", \"query_id_300\"];",
+                  "",
+                  "pm.test(\"筛选结果准确，没有遗漏或混入\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const actualIds = data.map(function (item) {",
+                  "        pm.expect(item).to.have.all.keys(\"bookingid\");",
+                  "        pm.expect(Number.isInteger(item.bookingid)).to.eql(true);",
+                  "        return item.bookingid;",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    const expectedIds = expectedKeys.map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    pm.expect(actualIds).to.deep.eql(expectedIds);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "按退房日期查询",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&checkout=2026-11-03",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\"query_id_100\"];",
+                  "",
+                  "pm.test(\"筛选结果准确，没有遗漏或混入\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const actualIds = data.map(function (item) {",
+                  "        pm.expect(item).to.have.all.keys(\"bookingid\");",
+                  "        pm.expect(Number.isInteger(item.bookingid)).to.eql(true);",
+                  "        return item.bookingid;",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    const expectedIds = expectedKeys.map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    pm.expect(actualIds).to.deep.eql(expectedIds);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "入住和退房组合查询",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&checkin=2026-11-02&checkout=2026-11-04",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\"query_id_200\"];",
+                  "",
+                  "pm.test(\"筛选结果准确，没有遗漏或混入\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const actualIds = data.map(function (item) {",
+                  "        pm.expect(item).to.have.all.keys(\"bookingid\");",
+                  "        pm.expect(Number.isInteger(item.bookingid)).to.eql(true);",
+                  "        return item.bookingid;",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    const expectedIds = expectedKeys.map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    pm.expect(actualIds).to.deep.eql(expectedIds);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "分页第一页",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&page=1&page_size=2",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"分页内容准确，合并后无重复或遗漏\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const page = Number(pm.request.url.query.get(\"page\"));",
+                  "    const keysByPage = {",
+                  "        1: [\"query_id_100\", \"query_id_200\"],",
+                  "        2: [\"query_id_300\"],",
+                  "        3: []",
+                  "    };",
+                  "",
+                  "    const expectedIds = keysByPage[page].map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    });",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data).to.deep.eql({",
+                  "        total: 3,",
+                  "        page: page,",
+                  "        page_size: 2,",
+                  "        bookings: expectedIds.map(function (id) {",
+                  "            return {bookingid: id};",
+                  "        })",
+                  "    });",
+                  "",
+                  "    if (page === 1) {",
+                  "        pm.environment.set(\"paging_seen\", \"[]\");",
+                  "    }",
+                  "",
+                  "    const seen = JSON.parse(pm.environment.get(\"paging_seen\"));",
+                  "    data.bookings.forEach(function (item) {",
+                  "        seen.push(item.bookingid);",
+                  "    });",
+                  "    pm.environment.set(\"paging_seen\", JSON.stringify(seen));",
+                  "",
+                  "    if (page === 3) {",
+                  "        const allExpected = [",
+                  "            \"query_id_100\",",
+                  "            \"query_id_200\",",
+                  "            \"query_id_300\"",
+                  "        ].map(function (key) {",
+                  "            return Number(pm.environment.get(key));",
+                  "        });",
+                  "",
+                  "        pm.expect(new Set(seen).size).to.eql(seen.length);",
+                  "        pm.expect(seen.slice().sort(function (a, b) {",
+                  "            return a - b;",
+                  "        })).to.deep.eql(allExpected.sort(function (a, b) {",
+                  "            return a - b;",
+                  "        }));",
+                  "    }",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "分页第二页",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&page=2&page_size=2",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"分页内容准确，合并后无重复或遗漏\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const page = Number(pm.request.url.query.get(\"page\"));",
+                  "    const keysByPage = {",
+                  "        1: [\"query_id_100\", \"query_id_200\"],",
+                  "        2: [\"query_id_300\"],",
+                  "        3: []",
+                  "    };",
+                  "",
+                  "    const expectedIds = keysByPage[page].map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    });",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data).to.deep.eql({",
+                  "        total: 3,",
+                  "        page: page,",
+                  "        page_size: 2,",
+                  "        bookings: expectedIds.map(function (id) {",
+                  "            return {bookingid: id};",
+                  "        })",
+                  "    });",
+                  "",
+                  "    if (page === 1) {",
+                  "        pm.environment.set(\"paging_seen\", \"[]\");",
+                  "    }",
+                  "",
+                  "    const seen = JSON.parse(pm.environment.get(\"paging_seen\"));",
+                  "    data.bookings.forEach(function (item) {",
+                  "        seen.push(item.bookingid);",
+                  "    });",
+                  "    pm.environment.set(\"paging_seen\", JSON.stringify(seen));",
+                  "",
+                  "    if (page === 3) {",
+                  "        const allExpected = [",
+                  "            \"query_id_100\",",
+                  "            \"query_id_200\",",
+                  "            \"query_id_300\"",
+                  "        ].map(function (key) {",
+                  "            return Number(pm.environment.get(key));",
+                  "        });",
+                  "",
+                  "        pm.expect(new Set(seen).size).to.eql(seen.length);",
+                  "        pm.expect(seen.slice().sort(function (a, b) {",
+                  "            return a - b;",
+                  "        })).to.deep.eql(allExpected.sort(function (a, b) {",
+                  "            return a - b;",
+                  "        }));",
+                  "    }",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "分页超出范围",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&page=3&page_size=2",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"分页内容准确，合并后无重复或遗漏\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const page = Number(pm.request.url.query.get(\"page\"));",
+                  "    const keysByPage = {",
+                  "        1: [\"query_id_100\", \"query_id_200\"],",
+                  "        2: [\"query_id_300\"],",
+                  "        3: []",
+                  "    };",
+                  "",
+                  "    const expectedIds = keysByPage[page].map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    });",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data).to.deep.eql({",
+                  "        total: 3,",
+                  "        page: page,",
+                  "        page_size: 2,",
+                  "        bookings: expectedIds.map(function (id) {",
+                  "            return {bookingid: id};",
+                  "        })",
+                  "    });",
+                  "",
+                  "    if (page === 1) {",
+                  "        pm.environment.set(\"paging_seen\", \"[]\");",
+                  "    }",
+                  "",
+                  "    const seen = JSON.parse(pm.environment.get(\"paging_seen\"));",
+                  "    data.bookings.forEach(function (item) {",
+                  "        seen.push(item.bookingid);",
+                  "    });",
+                  "    pm.environment.set(\"paging_seen\", JSON.stringify(seen));",
+                  "",
+                  "    if (page === 3) {",
+                  "        const allExpected = [",
+                  "            \"query_id_100\",",
+                  "            \"query_id_200\",",
+                  "            \"query_id_300\"",
+                  "        ].map(function (key) {",
+                  "            return Number(pm.environment.get(key));",
+                  "        });",
+                  "",
+                  "        pm.expect(new Set(seen).size).to.eql(seen.length);",
+                  "        pm.expect(seen.slice().sort(function (a, b) {",
+                  "            return a - b;",
+                  "        })).to.deep.eql(allExpected.sort(function (a, b) {",
+                  "            return a - b;",
+                  "        }));",
+                  "    }",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "无匹配普通查询",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}_missing",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [];",
+                  "",
+                  "pm.test(\"筛选结果准确，没有遗漏或混入\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "",
+                  "    const actualIds = data.map(function (item) {",
+                  "        pm.expect(item).to.have.all.keys(\"bookingid\");",
+                  "        pm.expect(Number.isInteger(item.bookingid)).to.eql(true);",
+                  "        return item.bookingid;",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    const expectedIds = expectedKeys.map(function (key) {",
+                  "        return Number(pm.environment.get(key));",
+                  "    }).sort(function (a, b) {",
+                  "        return a - b;",
+                  "    });",
+                  "",
+                  "    pm.expect(actualIds).to.deep.eql(expectedIds);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "无匹配分页查询",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}_missing&page=1&page_size=2",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"无匹配时返回空分页结果\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        total: 0,",
+                  "        page: 1,",
+                  "        page_size: 2,",
+                  "        bookings: []",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "页码为零",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&page=0",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedError = \"page must be >= 1 and page_size must be between 1 and 100\";",
+                  "",
+                  "pm.test(\"非法分页参数被准确拒绝\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: expectedError",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "页码不是整数",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&page=abc",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedError = \"Query parameter must be an integer: page\";",
+                  "",
+                  "pm.test(\"非法分页参数被准确拒绝\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: expectedError",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "每页数量超过上限",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&page_size=101",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedError = \"page must be >= 1 and page_size must be between 1 and 100\";",
+                  "",
+                  "pm.test(\"非法分页参数被准确拒绝\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: expectedError",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除价格100的预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{query_id_100}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除价格200的预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{query_id_200}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除价格300的预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{query_id_300}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "确认价格100的预约已删除",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{query_id_100}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "确认价格200的预约已删除",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{query_id_200}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "确认价格300的预约已删除",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{query_id_300}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "注销鉴权",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "注销后更新被拒绝",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 300,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已注销的token不能更新预约\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: \"A valid token cookie is required\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "重新登录",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询已删除预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "清理新token",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "过期鉴权",
+      "item": [
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "过期后更新被拒绝",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 300,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"真实过期的token不能更新预约\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: \"Token has expired\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "setTimeout(function () {}, 3000);",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "重新登录",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询已删除预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "PATCH只改价格",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH只改价格",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalprice\": 350\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"PATCH成功，只有价格改变\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const expected = JSON.parse(",
+                  "        pm.environment.get(\"booking_original\")",
+                  "    );",
+                  "    expected.totalprice = 350;",
+                  "",
+                  "    pm.expect(pm.response.json()).to.deep.eql(expected);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询确认只有价格改变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"查询确认价格已保存，其他字段未变\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const expected = JSON.parse(",
+                  "        pm.environment.get(\"booking_original\")",
+                  "    );",
+                  "    expected.totalprice = 350;",
+                  "",
+                  "    pm.expect(pm.response.json()).to.deep.eql(expected);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询已删除预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "PATCH空正文",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH空对象被拒绝",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"空对象PATCH被拒绝\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: \"Patch body must not be empty\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"拒绝PATCH后，完整预约数据未变\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const original = JSON.parse(",
+                  "        pm.environment.get(\"booking_original\")",
+                  "    );",
+                  "",
+                  "    pm.expect(pm.response.json()).to.deep.eql(original);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询已删除预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "PATCH未知字段",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH未知字段被拒绝",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"unexpected_field\": \"x\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"未知字段PATCH被拒绝\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: \"Unknown field: unexpected_field\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"拒绝PATCH后，完整预约数据未变\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const original = JSON.parse(",
+                  "        pm.environment.get(\"booking_original\")",
+                  "    );",
+                  "",
+                  "    pm.expect(pm.response.json()).to.deep.eql(original);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询已删除预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "注销后删除鉴权",
+      "item": [
+        {
+          "name": "获取鉴权token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建预约",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/booking",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 200,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"booking_id\", \"\");",
+                  "pm.environment.set(\"booking_original\", \"\");",
+                  "pm.environment.set(\"booking_updated\", \"\");",
+                  "pm.environment.set(\"booking_lastname\", \"Run_\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"创建成功并保存预约编号\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.bookingid).to.be.a(\"number\");",
+                  "    pm.expect(Number.isInteger(data.bookingid)).to.eql(true);",
+                  "    pm.expect(data.bookingid).to.be.above(0);",
+                  "",
+                  "    pm.expect(data.booking.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.booking.totalprice).to.eql(200);",
+                  "    pm.expect(data.booking.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.environment.set(\"booking_id\", data.bookingid);",
+                  "});",
+                  "",
+                  "pm.test(\"创建响应与完整请求数据一致\", function () {",
+                  "    const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "    pm.expect(pm.response.json().booking).to.deep.eql(expected);",
+                  "    pm.environment.set(\"booking_original\", JSON.stringify(expected));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "退出登录",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(",
+                  "    \"revoked_token\",",
+                  "    pm.environment.get(\"token\")",
+                  ");",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "注销后删除被拒绝",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Cookie",
+                "value": "token={{revoked_token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Alex\",\n  \"lastname\": \"{{booking_lastname}}\",\n  \"totalprice\": 300,\n  \"depositpaid\": true,\n  \"bookingdates\": {\n    \"checkin\": \"2026-11-01\",\n    \"checkout\": \"2026-11-03\"\n  },\n  \"additionalneeds\": \"Breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已注销的token不能删除预约\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        error: \"A valid token cookie is required\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询确认数据未变",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码和响应格式正确\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+                  "        .to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约数据正确\", function () {",
+                  "    const data = pm.response.json();",
+                  "",
+                  "    pm.expect(data.firstname).to.eql(\"Alex\");",
+                  "    pm.expect(data.lastname).to.eql(pm.environment.get(\"booking_lastname\"));",
+                  "    pm.expect(data.totalprice).to.eql(200);",
+                  "    pm.expect(data.depositpaid).to.eql(true);",
+                  "",
+                  "    pm.expect(data.bookingdates).to.be.an(\"object\");",
+                  "    pm.expect(data.bookingdates.checkin).to.eql(\"2026-11-01\");",
+                  "    pm.expect(data.bookingdates.checkout).to.eql(\"2026-11-03\");",
+                  "});",
+                  "",
+                  "pm.test(\"预约完整数据与创建时一致\", function () {",
+                  "    pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.environment.get(\"booking_original\")));",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "重新登录",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"token\", \"\");",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"鉴权成功并保存token\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+                  "",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除预约",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"删除成功\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "",
+                  "    pm.expect(pm.response.json().message)",
+                  "        .to.eql(\"Booking deleted\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "查询已删除预约",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/booking/{{booking_id}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"已删除的预约无法查询\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "",
+                  "    pm.expect(pm.response.json().error)",
+                  "        .to.eql(\"Booking or endpoint not found\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "清理新token",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/auth",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}",
+                "disabled": false
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"退出登录成功\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json()).to.deep.eql({",
+                  "        message: \"Logged out\"",
+                  "    });",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    }
+  ]
+}

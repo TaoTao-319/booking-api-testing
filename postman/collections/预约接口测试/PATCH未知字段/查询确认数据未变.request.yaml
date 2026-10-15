@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: GET
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("拒绝PATCH后，完整预约数据未变", function () {
+          pm.response.to.have.status(200);
+
+          const original = JSON.parse(
+              pm.environment.get("booking_original")
+          );
+
+          pm.expect(pm.response.json()).to.deep.eql(original);
+      });
+    language: text/javascript
+order: 5000

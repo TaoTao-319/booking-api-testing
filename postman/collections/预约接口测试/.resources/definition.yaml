@@ -1,0 +1,4 @@
+$kind: collection
+name: 本地预约接口测试
+auth:
+  type: noauth

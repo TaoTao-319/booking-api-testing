@@ -1,0 +1,60 @@
+$kind: http-request
+url: "{{base_url}}/booking"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "firstname": "Alex",
+      "lastname": "{{booking_lastname}}",
+      "totalprice": 200,
+      "depositpaid": true,
+      "bookingdates": {
+        "checkin": "2026-11-01",
+        "checkout": "2026-11-03"
+      },
+      "additionalneeds": "Breakfast"
+    }
+scripts:
+  - type: beforeRequest
+    code: >
+      pm.environment.set("booking_id", "");
+
+      pm.environment.set("booking_original", "");
+
+      pm.environment.set("booking_updated", "");
+
+      pm.environment.set("booking_lastname", "Run_" +
+      pm.variables.replaceIn("{{$guid}}"));
+    language: text/javascript
+  - type: afterResponse
+    code: >
+      pm.test("创建成功并保存预约编号", function () {
+          pm.response.to.have.status(200);
+
+          const data = pm.response.json();
+
+          pm.expect(data.bookingid).to.be.a("number");
+          pm.expect(Number.isInteger(data.bookingid)).to.eql(true);
+          pm.expect(data.bookingid).to.be.above(0);
+
+          pm.expect(data.booking.firstname).to.eql("Alex");
+          pm.expect(data.booking.totalprice).to.eql(200);
+          pm.expect(data.booking.depositpaid).to.eql(true);
+
+          pm.environment.set("booking_id", data.bookingid);
+      });
+
+
+      pm.test("创建响应与完整请求数据一致", function () {
+          const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));
+          pm.expect(pm.response.json().booking).to.deep.eql(expected);
+          pm.environment.set("booking_original", JSON.stringify(expected));
+      });
+    language: text/javascript
+order: 3000
+name: 创建预约
+auth:
+  type: noauth

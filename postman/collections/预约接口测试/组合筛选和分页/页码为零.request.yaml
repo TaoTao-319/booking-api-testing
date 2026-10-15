@@ -1,0 +1,32 @@
+$kind: http-request
+url: "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&p\
+  age=0"
+method: GET
+queryParams:
+  - key: firstname
+    value: QueryLearner
+    disabled: false
+    description: ""
+  - key: lastname
+    value: "{{query_lastname}}"
+    disabled: false
+    description: ""
+  - key: page
+    value: "0"
+    disabled: false
+    description: ""
+scripts:
+  - type: afterResponse
+    code: >
+      const expectedError = "page must be >= 1 and page_size must be between 1
+      and 100";
+
+
+      pm.test("非法分页参数被准确拒绝", function () {
+          pm.response.to.have.status(400);
+          pm.expect(pm.response.json()).to.deep.eql({
+              error: expectedError
+          });
+      });
+    language: text/javascript
+order: 17000

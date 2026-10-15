@@ -1,0 +1,51 @@
+$kind: http-request
+url: "{{base_url}}/booking"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"firstname\": \"QueryLearner\",\r
+
+    \  \"lastname\": \"{{query_lastname}}\",\r
+
+    \  \"totalprice\": 200,\r
+
+    \  \"depositpaid\": false,\r
+
+    \  \"bookingdates\": {\r
+
+    \    \"checkin\": \"2026-11-02\",\r
+
+    \    \"checkout\": \"2026-11-04\"\r
+
+    \  },\r
+
+    \  \"additionalneeds\": \"Breakfast\"\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: |
+      const idKey = "query_id_200";
+
+      pm.test("预约创建成功并保存实际编号", function () {
+          pm.response.to.have.status(200);
+
+          const data = pm.response.json();
+          const expected = JSON.parse(
+              pm.variables.replaceIn(pm.request.body.raw)
+          );
+
+          pm.expect(Number.isInteger(data.bookingid)).to.eql(true);
+          pm.expect(data.bookingid).to.be.above(0);
+          pm.expect(data.booking).to.deep.eql(expected);
+
+          pm.environment.set(idKey, data.bookingid);
+      });
+    language: text/javascript
+  - type: beforeRequest
+    code: |+
+      
+    language: text/javascript
+order: 3000

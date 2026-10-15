@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: DELETE
+headers:
+  Cookie: token={{token}}
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("不存在的预约删除返回404", function () {
+          pm.response.to.have.status(404);
+
+          const data = pm.response.json();
+          pm.expect(data.error).to.eql("Booking not found");
+      });
+    language: text/javascript
+order: 6000
+name: 删除预约_ID不存在
+auth:
+  type: noauth

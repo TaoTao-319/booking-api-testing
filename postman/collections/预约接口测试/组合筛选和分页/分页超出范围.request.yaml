@@ -1,0 +1,78 @@
+$kind: http-request
+url: "{{base_url}}/booking?firstname=QueryLearner&lastname={{query_lastname}}&p\
+  age=3&page_size=2"
+method: GET
+queryParams:
+  - key: firstname
+    value: QueryLearner
+    disabled: false
+    description: ""
+  - key: lastname
+    value: "{{query_lastname}}"
+    disabled: false
+    description: ""
+  - key: page
+    value: "3"
+    disabled: false
+    description: ""
+  - key: page_size
+    value: "2"
+    disabled: false
+    description: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("分页内容准确，合并后无重复或遗漏", function () {
+          pm.response.to.have.status(200);
+
+          const page = Number(pm.request.url.query.get("page"));
+          const keysByPage = {
+              1: ["query_id_100", "query_id_200"],
+              2: ["query_id_300"],
+              3: []
+          };
+
+          const expectedIds = keysByPage[page].map(function (key) {
+              return Number(pm.environment.get(key));
+          });
+
+          const data = pm.response.json();
+
+          pm.expect(data).to.deep.eql({
+              total: 3,
+              page: page,
+              page_size: 2,
+              bookings: expectedIds.map(function (id) {
+                  return {bookingid: id};
+              })
+          });
+
+          if (page === 1) {
+              pm.environment.set("paging_seen", "[]");
+          }
+
+          const seen = JSON.parse(pm.environment.get("paging_seen"));
+          data.bookings.forEach(function (item) {
+              seen.push(item.bookingid);
+          });
+          pm.environment.set("paging_seen", JSON.stringify(seen));
+
+          if (page === 3) {
+              const allExpected = [
+                  "query_id_100",
+                  "query_id_200",
+                  "query_id_300"
+              ].map(function (key) {
+                  return Number(pm.environment.get(key));
+              });
+
+              pm.expect(new Set(seen).size).to.eql(seen.length);
+              pm.expect(seen.slice().sort(function (a, b) {
+                  return a - b;
+              })).to.deep.eql(allExpected.sort(function (a, b) {
+                  return a - b;
+              }));
+          }
+      });
+    language: text/javascript
+order: 14000

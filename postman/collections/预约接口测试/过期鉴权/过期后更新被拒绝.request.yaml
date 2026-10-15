@@ -1,0 +1,38 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: PUT
+headers:
+  Content-Type: application/json
+  Cookie: token={{token}}
+body:
+  type: json
+  content: |-
+    {
+      "firstname": "Alex",
+      "lastname": "{{booking_lastname}}",
+      "totalprice": 300,
+      "depositpaid": true,
+      "bookingdates": {
+        "checkin": "2026-11-01",
+        "checkout": "2026-11-03"
+      },
+      "additionalneeds": "Breakfast"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("真实过期的token不能更新预约", function () {
+          pm.response.to.have.status(403);
+          pm.expect(pm.response.json()).to.deep.eql({
+              error: "Token has expired"
+          });
+      });
+    language: text/javascript
+  - type: beforeRequest
+    code: |
+      
+      setTimeout(function () {}, 3000);
+    language: text/javascript
+order: 3000

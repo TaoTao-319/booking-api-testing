@@ -1,0 +1,37 @@
+$kind: http-request
+url: "{{base_url}}/booking"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"firstname\": \"Alex\",\r
+
+    \  \"lastname\": \"Learner\",\r
+
+    \  \"totalprice\": 200,\r
+
+    \  \"depositpaid\": true,\r
+
+    \  \"bookingdates\": {\r
+
+    \    \"checkin\": \"2026-11-01\",\r
+
+    \    \"checkout\": \"2026-02-30\"\r
+
+    \  },\r
+
+    \  \"additionalneeds\": \"Breakfast\"\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("不存在的退房日期被拒绝", function () {
+          pm.response.to.have.status(400);
+          pm.expect(pm.response.json()).to.deep.eql({
+              error: "Invalid date: bookingdates.checkout (use YYYY-MM-DD)"
+          });
+      });
+    language: text/javascript
+order: 8000

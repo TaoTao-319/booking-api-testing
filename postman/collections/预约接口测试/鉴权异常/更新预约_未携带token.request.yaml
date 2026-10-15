@@ -1,0 +1,31 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "firstname": "Alex",
+      "lastname": "{{booking_lastname}}",
+      "totalprice": 300,
+      "depositpaid": true,
+      "bookingdates": {
+        "checkin": "2026-11-01",
+        "checkout": "2026-11-03"
+      },
+      "additionalneeds": "Breakfast"
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("无有效凭证时拒绝操作", function () {
+          pm.response.to.have.status(403);
+
+          pm.expect(pm.response.json().error)
+              .to.eql("A valid token cookie is required");
+      });
+    language: text/javascript
+order: 5000
+name: 更新预约_未携带token
+auth:
+  type: noauth

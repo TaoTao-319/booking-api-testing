@@ -1,0 +1,457 @@
+{
+  "request_count": 113,
+  "sources": [
+    {
+      "file": "postman/collections/预约接口测试/PATCH只改价格/PATCH只改价格.request.yaml",
+      "sha256": "d55b6c55ee9f27eb9899400302b52c383d2c792dc1e38c42a9bd55dd78e1ee99"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH只改价格/创建预约.request.yaml",
+      "sha256": "5323c67c931cdf199ad4305813247922deb404f5b345c568c60b25536f7e9121"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH只改价格/删除预约.request.yaml",
+      "sha256": "243eaf312752ca7b2274354f209ac313af3156d205db2e6886f1f558ff1a7cf4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH只改价格/查询已删除预约.request.yaml",
+      "sha256": "8bd5256d9375187b65e6f6882f4d1aafd7bd331c1abb38c27131941063e54dcf"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH只改价格/查询确认只有价格改变.request.yaml",
+      "sha256": "8cead5fb9b1561a6c8eb57be5a740fbde20b3736797ee93f0fccda404bfd1fa3"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH只改价格/获取鉴权token.request.yaml",
+      "sha256": "f3b6d8eb89f7b26a45359495961491fdd07f6da16c4193986dc2183e0acb362f"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH只改价格/退出登录.request.yaml",
+      "sha256": "eeba9d703e22fc73e05bdc8f3960b3c0f1289b6a145198523d62bf08d345a0f4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH未知字段/PATCH未知字段被拒绝.request.yaml",
+      "sha256": "ea62449c3aae20f894307751dae3f29f355a2f601ff568226777d979d0afc846"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH未知字段/创建预约.request.yaml",
+      "sha256": "5323c67c931cdf199ad4305813247922deb404f5b345c568c60b25536f7e9121"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH未知字段/删除预约.request.yaml",
+      "sha256": "243eaf312752ca7b2274354f209ac313af3156d205db2e6886f1f558ff1a7cf4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH未知字段/查询已删除预约.request.yaml",
+      "sha256": "8bd5256d9375187b65e6f6882f4d1aafd7bd331c1abb38c27131941063e54dcf"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH未知字段/查询确认数据未变.request.yaml",
+      "sha256": "e0e65fab53243d95204f8d3e615f836f4bf26ff377fc0abca5bc25a3dfc53cd1"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH未知字段/获取鉴权token.request.yaml",
+      "sha256": "f3b6d8eb89f7b26a45359495961491fdd07f6da16c4193986dc2183e0acb362f"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH未知字段/退出登录.request.yaml",
+      "sha256": "eeba9d703e22fc73e05bdc8f3960b3c0f1289b6a145198523d62bf08d345a0f4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH空正文/PATCH空对象被拒绝.request.yaml",
+      "sha256": "2cf4c26ca6652c6813102e216c51980c03acff86f47f5c6f317d19b9547ad49a"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH空正文/创建预约.request.yaml",
+      "sha256": "5323c67c931cdf199ad4305813247922deb404f5b345c568c60b25536f7e9121"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH空正文/删除预约.request.yaml",
+      "sha256": "243eaf312752ca7b2274354f209ac313af3156d205db2e6886f1f558ff1a7cf4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH空正文/查询已删除预约.request.yaml",
+      "sha256": "8bd5256d9375187b65e6f6882f4d1aafd7bd331c1abb38c27131941063e54dcf"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH空正文/查询确认数据未变.request.yaml",
+      "sha256": "e0e65fab53243d95204f8d3e615f836f4bf26ff377fc0abca5bc25a3dfc53cd1"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH空正文/获取鉴权token.request.yaml",
+      "sha256": "f3b6d8eb89f7b26a45359495961491fdd07f6da16c4193986dc2183e0acb362f"
+    },
+    {
+      "file": "postman/collections/预约接口测试/PATCH空正文/退出登录.request.yaml",
+      "sha256": "eeba9d703e22fc73e05bdc8f3960b3c0f1289b6a145198523d62bf08d345a0f4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/健康检查.request.yaml",
+      "sha256": "4647a9dc2cb8b0c68f94fb9fc40e4e22d7ecd017e74ebb9aef9106eb9470b879"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/创建预约.request.yaml",
+      "sha256": "ef1b7bdb78156457d248f99994824094cea9806a504b15d173786dd54756131b"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/删除预约.request.yaml",
+      "sha256": "62c55b92c3645ec4ab7b96337f2a9e6a18b35e524abc9b053d39a45e93ca1a57"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/按姓名查询预约.request.yaml",
+      "sha256": "221ee71de8280f24c1c6a8e6fe1ea6c1e5cca1e1ba3f01e3b9ce1b2c30956170"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/更新预约.request.yaml",
+      "sha256": "13d6d9f92aa58f9386e27c2034f4a454e65ebb0580482575e4bfa5d976956e15"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/查询刚创建的预约.request.yaml",
+      "sha256": "1c7a18abeb77c288ecddc1732b0b8a0e3bd721f1e81dee161375954e931299c0"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/查询已删除预约.request.yaml",
+      "sha256": "47334aef3b50233c997e5012d6f1d145b54772987be7d5a574f8f2d717745d04"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/查询更新后的预约.request.yaml",
+      "sha256": "4570a333554d7ba1c8d83925cf50ac6f805a4cd368da9708bd3aab60e63fcc9c"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/查询预约列表.request.yaml",
+      "sha256": "4520073cbeac18c840671b98ad98d3514d3b89bc6dcf1b075885a361f06da897"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/获取鉴权token.request.yaml",
+      "sha256": "017cb951fa20b71ec1e4e15dd4d0850a021a1152fadfd5a54421f7f7dbc89769"
+    },
+    {
+      "file": "postman/collections/预约接口测试/正常流程/退出登录.request.yaml",
+      "sha256": "79f9c217b48fb389b903fca5080a53449d4171f0b6454653e4c53b6573186698"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/创建预约.request.yaml",
+      "sha256": "5323c67c931cdf199ad4305813247922deb404f5b345c568c60b25536f7e9121"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/删除预约.request.yaml",
+      "sha256": "243eaf312752ca7b2274354f209ac313af3156d205db2e6886f1f558ff1a7cf4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/查询已删除预约.request.yaml",
+      "sha256": "8bd5256d9375187b65e6f6882f4d1aafd7bd331c1abb38c27131941063e54dcf"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/查询确认数据未变.request.yaml",
+      "sha256": "17a1f5c537f28799d755ec689f7774c707884d3ef84ece4ea5ec7cf1f7569744"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/注销后删除被拒绝.request.yaml",
+      "sha256": "e23ec2c81d398d9cf96839619fef44fd9191eaacb3959cd12a0184d0c66a5220"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/清理新token.request.yaml",
+      "sha256": "eeba9d703e22fc73e05bdc8f3960b3c0f1289b6a145198523d62bf08d345a0f4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/获取鉴权token.request.yaml",
+      "sha256": "f3b6d8eb89f7b26a45359495961491fdd07f6da16c4193986dc2183e0acb362f"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/退出登录.request.yaml",
+      "sha256": "725b4fa09c2a78bbea541e9a3710d1c8124d10def685652b84a5efa4b2efb763"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销后删除鉴权/重新登录.request.yaml",
+      "sha256": "930cd4e22195e18ac2c834f6d61be3b87b3775ccef3875f3eab8553c86ad31e9"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/创建预约.request.yaml",
+      "sha256": "5323c67c931cdf199ad4305813247922deb404f5b345c568c60b25536f7e9121"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/删除预约.request.yaml",
+      "sha256": "243eaf312752ca7b2274354f209ac313af3156d205db2e6886f1f558ff1a7cf4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/查询已删除预约.request.yaml",
+      "sha256": "8bd5256d9375187b65e6f6882f4d1aafd7bd331c1abb38c27131941063e54dcf"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/查询确认数据未变.request.yaml",
+      "sha256": "17a1f5c537f28799d755ec689f7774c707884d3ef84ece4ea5ec7cf1f7569744"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/注销后更新被拒绝.request.yaml",
+      "sha256": "0850e6dde1b865530a3aa719cb1e492f7fc8df2de029628550d6952d25e00840"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/清理新token.request.yaml",
+      "sha256": "eeba9d703e22fc73e05bdc8f3960b3c0f1289b6a145198523d62bf08d345a0f4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/获取鉴权token.request.yaml",
+      "sha256": "f3b6d8eb89f7b26a45359495961491fdd07f6da16c4193986dc2183e0acb362f"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/退出登录.request.yaml",
+      "sha256": "7b2047e7946903281bb81348eb500560f0e85f7de417abc1af4f4544e90cc099"
+    },
+    {
+      "file": "postman/collections/预约接口测试/注销鉴权/重新登录.request.yaml",
+      "sha256": "930cd4e22195e18ac2c834f6d61be3b87b3775ccef3875f3eab8553c86ad31e9"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/不分页查询.request.yaml",
+      "sha256": "76ea77e9ec8843d58d8b924248de1a02d92a562b99f97d0970500db4cdfdffa7"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/价格范围包含边界.request.yaml",
+      "sha256": "c4114d8273da732e7c1c843559be70d48fd77487839026daa90f11fac1e1a1e3"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/入住和退房组合查询.request.yaml",
+      "sha256": "37fa8645bc1b1d5e5e0ea6a888fa61edad5170e4856940030ae91e44a16bb62e"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/分页第一页.request.yaml",
+      "sha256": "a0b764a653218dc48f9b812142fce4070bfcd1ad8515bc00f86ee969fc5b1fef"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/分页第二页.request.yaml",
+      "sha256": "7f5154bd3365f3b55211cdbc8305f790267cde28f6efc35de0e96e3c37890920"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/分页超出范围.request.yaml",
+      "sha256": "54bd40185e9f3e83bc8d25b246831cf3f26e6e8caa97384912b82e7bb6cc3ecf"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/创建价格100的预约.request.yaml",
+      "sha256": "4a0cb02eee038e63c4f3ac6d02cbcce250e023aa3f6f7b0e51391ad6c5634b33"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/创建价格200的预约.request.yaml",
+      "sha256": "aba192164151346029d821da0d24fb6477e92c251dac01df79f9abaa3f3de248"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/创建价格300的预约.request.yaml",
+      "sha256": "d73e0349a4c710af04b20b9bf946e22a7b24c2fb72e401950ef49279a94b3740"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/删除价格100的预约.request.yaml",
+      "sha256": "d35ff7a64934b00983767e721ea6aa3c34e4cb990cd4fc28a42b531955e64af9"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/删除价格200的预约.request.yaml",
+      "sha256": "2a07784bf90e1e3adb08e0ed59243dbf866ae000bae10b6d159367035d082fbe"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/删除价格300的预约.request.yaml",
+      "sha256": "2f480da0788c27e755f05c02178c056923ccb79f53fa78b61c0a32b22a139149"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/姓名加已付订金.request.yaml",
+      "sha256": "b656029e5ce4989977858279b4b6342628addcca86c8a30698c02be20e409030"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/姓名加未付订金.request.yaml",
+      "sha256": "1b9b8efd8ebbe7d9b8ebe082cb12231f3b083b9ea0a6c0588dc11b49c0736402"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/按入住日期查询.request.yaml",
+      "sha256": "d4b876b756cf9ffaa612eef4dfa51b21eee61f47222966bad486d3c30843c843"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/按退房日期查询.request.yaml",
+      "sha256": "bf282f6aa6961e6bda5764420ec670463d079eb145b3a83392c4a5e885907bfb"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/无匹配分页查询.request.yaml",
+      "sha256": "b57dc3c49a99668dca8698a08b355204b528e8dbe6db742b9f4d431faa7e1bde"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/无匹配普通查询.request.yaml",
+      "sha256": "6d64be841952552b1788bc7a336eecdeefe58c3a8c9a99fae9a76043d11e9b5e"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/每页数量超过上限.request.yaml",
+      "sha256": "3d1865905ee12a5b588e88d23123d8405b59bca8b5acd8275dbabcdb9fabd929"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/确认价格100的预约已删除-1.request.yaml",
+      "sha256": "670750dabcb5f68d3a0809bd6a34aa88c64330c73b7af06294816fb616301267"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/确认价格200的预约已删除.request.yaml",
+      "sha256": "fd4085d14703d3637f75106f5746bfe95a24c3073510ddcc9e246f335abab083"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/确认价格300的预约已删除.request.yaml",
+      "sha256": "a83f2421cdbb01d1a16bf600b4bfcbba0c8605f96bfbdd33daad470831082893"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/获取鉴权token.request.yaml",
+      "sha256": "d4bbb28148598afee535e50d147f5d2638ff9325ac73f1078407bf4017506953"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/退出登录.request.yaml",
+      "sha256": "a0d6d52e5fa537ae46c7c5da251911e9d6d08d3ed314aae119cd918154731561"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/页码不是整数.request.yaml",
+      "sha256": "5c8ac578e0e6213e7cbf33816f140f585813b4ce7a458cde72a0bf516262660d"
+    },
+    {
+      "file": "postman/collections/预约接口测试/组合筛选和分页/页码为零.request.yaml",
+      "sha256": "fe08702b4637752e384dd71c6e0b994e8f8730772502038c898381c78bd630dc"
+    },
+    {
+      "file": "postman/collections/预约接口测试/资源不存在/创建预约.request.yaml",
+      "sha256": "ba82da7c52c8ce2f22224f933ef9ed1ddbf090b2a0e1fb63f81dee27e1de831c"
+    },
+    {
+      "file": "postman/collections/预约接口测试/资源不存在/删除预约.request.yaml",
+      "sha256": "ece0a43077aa49b93a75be85fbd586107763bf3ae1555ab8280a1f3fb14e9b3b"
+    },
+    {
+      "file": "postman/collections/预约接口测试/资源不存在/删除预约_ID不存在.request.yaml",
+      "sha256": "8295894912710991a79d11b461a990a066aaf476337b7706141b975f6dc72d09"
+    },
+    {
+      "file": "postman/collections/预约接口测试/资源不存在/更新预约_ID不存在.request.yaml",
+      "sha256": "4cca7184567721993b03fd3cdb54b73a3c53b48f046cd5bbcffcd29bb541ccef"
+    },
+    {
+      "file": "postman/collections/预约接口测试/资源不存在/查询预约_ID不存在.request.yaml",
+      "sha256": "4af72022bdfa8a53a057d643a034e0166468fc5731100f1585706602c40eca2b"
+    },
+    {
+      "file": "postman/collections/预约接口测试/资源不存在/获取鉴权token.request.yaml",
+      "sha256": "4e35312f2cd4a652ec0c3dd84e0417abdca204531ea246cdf66292c6d8cb249b"
+    },
+    {
+      "file": "postman/collections/预约接口测试/资源不存在/退出登录.request.yaml",
+      "sha256": "79f9c217b48fb389b903fca5080a53449d4171f0b6454653e4c53b6573186698"
+    },
+    {
+      "file": "postman/collections/预约接口测试/输入校验/checkout日期不存在.request.yaml",
+      "sha256": "2cb36d699a13c17092809544ad608f5e5bbea4ab82993df016d5e1c4104093ee"
+    },
+    {
+      "file": "postman/collections/预约接口测试/输入校验/depositpaid类型错误.request.yaml",
+      "sha256": "0942e71a90ba3c7a7fb9a22f9e96811c16580c392e60576f4b5f1ead76c85761"
+    },
+    {
+      "file": "postman/collections/预约接口测试/输入校验/firstname全为空格.request.yaml",
+      "sha256": "f36e4cb0e2b477e0006f0ca3c0d71dcab1d4b59be40e454b46809572ac36f0e5"
+    },
+    {
+      "file": "postman/collections/预约接口测试/输入校验/JSON格式错误.request.yaml",
+      "sha256": "296c9288ca0cba188b601768d56a3e317c228b58a939c645309774df50068cd8"
+    },
+    {
+      "file": "postman/collections/预约接口测试/输入校验/totalprice类型错误.request.yaml",
+      "sha256": "f32ce9c15514ac80407063a3c9528e369defa2d51c9970262717a68d8b7d72cf"
+    },
+    {
+      "file": "postman/collections/预约接口测试/输入校验/价格为负数.request.yaml",
+      "sha256": "19c1cb3bcf93d0702d781d13ad1aa958677d2c3e392ee24f89313235b01cdcde"
+    },
+    {
+      "file": "postman/collections/预约接口测试/输入校验/缺少checkout.request.yaml",
+      "sha256": "bf7e4b3ec07fbf4fc9a03daebe36a89c5e731ce1c04024bba71e0ca6dc033491"
+    },
+    {
+      "file": "postman/collections/预约接口测试/输入校验/缺少firstname.request.yaml",
+      "sha256": "c79b377e04b1bc30ccd464f96a6d2cf34ef308482d0350ce0a3d53c503496ac6"
+    },
+    {
+      "file": "postman/collections/预约接口测试/过期鉴权/创建预约.request.yaml",
+      "sha256": "9596e1c373d8484a12e2b252e99382a50ed5f2994d258a982cb407456f44df00"
+    },
+    {
+      "file": "postman/collections/预约接口测试/过期鉴权/删除预约.request.yaml",
+      "sha256": "0dc9c8c0f6cd51ee46abbac9088fbdd952c6e65b314f89df9536d06c3fed87a2"
+    },
+    {
+      "file": "postman/collections/预约接口测试/过期鉴权/查询已删除预约.request.yaml",
+      "sha256": "643eb3c3a1e52bfac5b6174b14c30f52b2100d34b0f070c8252347d729d847d8"
+    },
+    {
+      "file": "postman/collections/预约接口测试/过期鉴权/查询确认数据未变.request.yaml",
+      "sha256": "494d32fd31d4e4f8077f68c292ea16438c6ace3581822ee260e547ba2f0e3685"
+    },
+    {
+      "file": "postman/collections/预约接口测试/过期鉴权/获取鉴权token.request.yaml",
+      "sha256": "2fcadbd5b9f477144edadfb1ac069fb28b3abe201a4a998bc93ca5693281c108"
+    },
+    {
+      "file": "postman/collections/预约接口测试/过期鉴权/过期后更新被拒绝.request.yaml",
+      "sha256": "877beba4626bfbfb31a3cd0ec418f167260e6c11eb4befdd749c765d35158ca6"
+    },
+    {
+      "file": "postman/collections/预约接口测试/过期鉴权/退出登录.request.yaml",
+      "sha256": "3d0b04967f2849191b677a7441ee5abfca8768b737296ac9d131234331490856"
+    },
+    {
+      "file": "postman/collections/预约接口测试/过期鉴权/重新登录.request.yaml",
+      "sha256": "988cbdd5e36a8dd6c20861489df16f7819324dcdd3cdd6d210ed3f7cfdbde2bf"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/创建预约.request.yaml",
+      "sha256": "ba82da7c52c8ce2f22224f933ef9ed1ddbf090b2a0e1fb63f81dee27e1de831c"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/删除预约.request.yaml",
+      "sha256": "a3a49e0997ffe0e103708d9c1389da2633da705f69cf6b5c6014668343ec3db4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/删除预约_token无效.request.yaml",
+      "sha256": "84faccfb2ccfae73566f5f1fde917310b0558cc99cd98d6792a3423e25db68d5"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/删除预约_未携带token.request.yaml",
+      "sha256": "7b954247d7329d8be884c93eb98c260aeaa0bbc30084bbd1dd543a0a7d88e8d4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/无token删除后确认数据未变.request.yaml",
+      "sha256": "54844f070445526a687471da477bcdcc5763b09334e7f521cf87e72d85bd2899"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/无token更新后确认数据未变.request.yaml",
+      "sha256": "3e7299c7a514ea1d2a5f8c66eb50d377126605af80593fb3ac91ef38e25da8d2"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/无效token删除后确认数据未变.request.yaml",
+      "sha256": "56b3fc916dccc01ab17bb72636196213b36801a9423b2c7d8ecd31735fe5843a"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/无效token更新后确认数据未变.request.yaml",
+      "sha256": "17fbc88ce19bbb3dae702fb18fbc1885aa6750cb9f208c0f72fea758b48a6d75"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/更新预约_token无效.request.yaml",
+      "sha256": "3edcca50d2a7986ee8fcd8ddfa27b54aa94cc216488c36c0205fc29fadb08bf0"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/更新预约_未携带token.request.yaml",
+      "sha256": "698c215cce2cea1c1aab57df7336af1b549d632498d4210ac58cba47779c3c42"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/查询刚创建的预约.request.yaml",
+      "sha256": "c84f985d9bc049c6cf18e639dcc36e6778fda8a328a8ee9d395859206c24fa14"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/获取token_错误密码.request.yaml",
+      "sha256": "e0e37196419628ae0d717a02e99d4905d7df7f3fd50317f7839cf4a62fe7ded4"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/获取鉴权token.request.yaml",
+      "sha256": "4e35312f2cd4a652ec0c3dd84e0417abdca204531ea246cdf66292c6d8cb249b"
+    },
+    {
+      "file": "postman/collections/预约接口测试/鉴权异常/退出登录.request.yaml",
+      "sha256": "79f9c217b48fb389b903fca5080a53449d4171f0b6454653e4c53b6573186698"
+    }
+  ]
+}

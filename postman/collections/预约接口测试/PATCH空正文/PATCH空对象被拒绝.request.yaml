@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Cookie: token={{token}}
+body:
+  type: json
+  content: "{}"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("空对象PATCH被拒绝", function () {
+          pm.response.to.have.status(400);
+
+          pm.expect(pm.response.json()).to.deep.eql({
+              error: "Patch body must not be empty"
+          });
+      });
+    language: text/javascript
+order: 4000

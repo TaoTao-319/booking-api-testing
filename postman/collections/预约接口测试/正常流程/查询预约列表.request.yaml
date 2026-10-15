@@ -1,0 +1,26 @@
+$kind: http-request
+url: "{{base_url}}/booking"
+method: GET
+scripts:
+  - type: afterResponse
+    code: >
+      pm.test("返回预约编号数组", function () {
+          pm.response.to.have.status(200);
+
+          const data = pm.response.json();
+          pm.expect(data).to.be.an("array");
+
+          data.forEach(function (item) {
+              pm.expect(item.bookingid).to.be.a("number");
+          });
+      });
+
+
+      pm.test("列表包含本次创建的预约", function () {
+          pm.expect(pm.response.json().map(item => item.bookingid)).to.include(Number(pm.environment.get("booking_id")));
+      });
+    language: text/javascript
+order: 4000
+name: 查询预约列表
+auth:
+  type: noauth

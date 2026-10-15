@@ -1,0 +1,34 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: PUT
+headers:
+  Content-Type: application/json
+  Cookie: token={{token}}
+body:
+  type: json
+  content: |-
+    {
+      "firstname": "Alex",
+      "lastname": "{{booking_lastname}}",
+      "totalprice": 300,
+      "depositpaid": true,
+      "bookingdates": {
+        "checkin": "2026-11-01",
+        "checkout": "2026-11-03"
+      },
+      "additionalneeds": "Breakfast"
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("不存在的预约更新返回404", function () {
+          pm.response.to.have.status(404);
+
+          const data = pm.response.json();
+          pm.expect(data.error).to.eql("Booking not found");
+      });
+    language: text/javascript
+order: 5000
+name: 更新预约_ID不存在
+auth:
+  type: noauth

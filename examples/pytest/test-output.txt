@@ -1,0 +1,52 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- F:\projects\booking-api-testing\.venv\Scripts\python.exe
+rootdir: F:\projects\booking-api-testing
+configfile: pytest.ini
+collecting ... collected 43 items
+
+tests/test_auth.py::test_login_with_wrong_password PASSED                [  2%]
+tests/test_auth.py::test_booking_rejects_bad_credentials[put_without_token] PASSED [  4%]
+tests/test_auth.py::test_booking_rejects_bad_credentials[put_with_invalid_token] PASSED [  6%]
+tests/test_auth.py::test_booking_rejects_bad_credentials[delete_without_token] PASSED [  9%]
+tests/test_auth.py::test_booking_rejects_bad_credentials[delete_with_invalid_token] PASSED [ 11%]
+tests/test_auth.py::test_logged_out_token_cannot_update_booking PASSED   [ 13%]
+tests/test_auth.py::test_logged_out_token_cannot_delete_booking PASSED   [ 16%]
+tests/test_booking.py::test_create_booking PASSED                        [ 18%]
+tests/test_booking.py::test_list_bookings PASSED                         [ 20%]
+tests/test_booking.py::test_get_booking PASSED                           [ 23%]
+tests/test_booking.py::test_filter_booking_by_name PASSED                [ 25%]
+tests/test_booking.py::test_put_booking PASSED                           [ 27%]
+tests/test_booking.py::test_delete_booking PASSED                        [ 30%]
+tests/test_health.py::test_ping PASSED                                   [ 32%]
+tests/test_not_found.py::test_get_deleted_booking PASSED                 [ 34%]
+tests/test_not_found.py::test_put_deleted_booking PASSED                 [ 37%]
+tests/test_not_found.py::test_delete_deleted_booking PASSED              [ 39%]
+tests/test_patch.py::test_patch_only_price PASSED                        [ 41%]
+tests/test_patch.py::test_patch_empty_object_rejected PASSED             [ 44%]
+tests/test_patch.py::test_patch_unknown_field_rejected PASSED            [ 46%]
+tests/test_query.py::test_query_without_pagination PASSED                [ 48%]
+tests/test_query.py::test_filter_by_name_and_deposit[name_and_paid] PASSED [ 51%]
+tests/test_query.py::test_filter_by_name_and_deposit[name_and_unpaid] PASSED [ 53%]
+tests/test_query.py::test_filter_by_price_range PASSED                   [ 55%]
+tests/test_query.py::test_filter_by_dates[checkin] PASSED                [ 58%]
+tests/test_query.py::test_filter_by_dates[checkout] PASSED               [ 60%]
+tests/test_query.py::test_filter_by_dates[checkin_and_checkout] PASSED   [ 62%]
+tests/test_query.py::test_pagination_and_completeness PASSED             [ 65%]
+tests/test_query.py::test_query_without_matches[plain_list] PASSED       [ 67%]
+tests/test_query.py::test_query_without_matches[paginated] PASSED        [ 69%]
+tests/test_query.py::test_invalid_pagination_parameters[page_zero] PASSED [ 72%]
+tests/test_query.py::test_invalid_pagination_parameters[page_wrong_type] PASSED [ 74%]
+tests/test_query.py::test_invalid_pagination_parameters[page_size_too_large] PASSED [ 76%]
+tests/test_requests_basics.py::test_login_query_and_logout PASSED        [ 79%]
+tests/test_token_expiry.py::test_expired_token_cannot_update_booking PASSED [ 81%]
+tests/test_validation.py::test_booking_input_validation[missing_firstname] PASSED [ 83%]
+tests/test_validation.py::test_booking_input_validation[missing_checkout] PASSED [ 86%]
+tests/test_validation.py::test_booking_input_validation[price_wrong_type] PASSED [ 88%]
+tests/test_validation.py::test_booking_input_validation[deposit_wrong_type] PASSED [ 90%]
+tests/test_validation.py::test_booking_input_validation[negative_price] PASSED [ 93%]
+tests/test_validation.py::test_booking_input_validation[blank_firstname] PASSED [ 95%]
+tests/test_validation.py::test_booking_input_validation[invalid_checkout_date] PASSED [ 97%]
+tests/test_validation.py::test_invalid_json_body PASSED                  [100%]
+
+- generated xml file: F:\projects\booking-api-testing\reports\2026-10-15\153938-821408\pytest-results.xml -
+============================= 43 passed in 5.61s ==============================

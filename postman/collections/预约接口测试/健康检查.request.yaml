@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/ping"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("健康检查成功", function () {
+          pm.response.to.have.status(200);
+          pm.expect(pm.response.json()).to.deep.eql({
+              status: "ok"
+          });
+      });
+    language: text/javascript
+order: 1000

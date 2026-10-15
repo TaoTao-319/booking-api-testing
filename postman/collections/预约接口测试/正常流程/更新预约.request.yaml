@@ -1,0 +1,42 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{booking_id}}"
+method: PUT
+headers:
+  Content-Type: application/json
+  Cookie: token={{token}}
+body:
+  type: json
+  content: |-
+    {
+      "firstname": "Alex",
+      "lastname": "{{booking_lastname}}",
+      "totalprice": 300,
+      "depositpaid": true,
+      "bookingdates": {
+        "checkin": "2026-11-01",
+        "checkout": "2026-11-03"
+      },
+      "additionalneeds": "Breakfast"
+    }
+scripts:
+  - type: afterResponse
+    code: >
+      pm.test("更新成功", function () {
+          pm.response.to.have.status(200);
+
+          const data = pm.response.json();
+          pm.expect(data.firstname).to.eql("Alex");
+          pm.expect(data.totalprice).to.eql(300);
+      });
+
+
+      pm.test("更新响应与完整请求数据一致", function () {
+          const expected = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));
+          pm.expect(pm.response.json()).to.deep.eql(expected);
+          pm.environment.set("booking_updated", JSON.stringify(expected));
+      });
+    language: text/javascript
+order: 7000
+name: 更新预约
+auth:
+  type: noauth

@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{base_url}}/booking/{{query_id_100}}"
+method: DELETE
+headers:
+  Cookie: token={{token}}
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("删除成功", function () {
+          pm.response.to.have.status(201);
+
+          pm.expect(pm.response.json().message)
+              .to.eql("Booking deleted");
+      });
+    language: text/javascript
+order: 20000

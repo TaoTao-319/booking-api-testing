@@ -1,0 +1,17 @@
+$kind: http-request
+name: 退出登录
+url: "{{base_url}}/auth"
+method: DELETE
+auth:
+  type: noauth
+headers:
+  Cookie: token={{token}}
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |
+      pm.test("退出登录并清理凭证", function () {
+          pm.response.to.have.status(200);
+          pm.expect(pm.response.json()).to.deep.eql({message: "Logged out"});
+      });
+order: 20000
